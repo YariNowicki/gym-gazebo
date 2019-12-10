@@ -224,7 +224,7 @@ if __name__ == '__main__':
 
     img_rows, img_cols, img_channels = env.img_rows, env.img_cols, env.img_channels
     epochs = 10000
-    steps = 10
+    steps = 15
 
     if not continue_execution:
         minibatch_size = 32
@@ -232,7 +232,7 @@ if __name__ == '__main__':
         discountFactor = 0.95
         network_outputs = 8
         memorySize = 100000
-        learnStart = 100  # timesteps to observe before training
+        learnStart = 500  # timesteps to observe before training
         EXPLORE = memorySize  # frames over which to anneal epsilon
         INITIAL_EPSILON = 1  # starting value of epsilon
         FINAL_EPSILON = 0.01  # final value of epsilon
@@ -243,7 +243,7 @@ if __name__ == '__main__':
 
         deepQ = DeepQ(network_outputs, memorySize, discountFactor, learningRate, learnStart)
         deepQ.initNetworks()
-        deepQ.loadWeights(weights_path)
+        # deepQ.loadWeights(weights_path)
         # env.monitor.start(outdir, force=True, seed=None)
     else:
         # Load weights, monitor info and parameter info.

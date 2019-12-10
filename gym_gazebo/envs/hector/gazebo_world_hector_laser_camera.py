@@ -74,21 +74,21 @@ class GazeboWorldHectorLaserCamera(gazebo_env.GazeboEnv):
             self.cmd_pub.publish(vel_cmd)
         elif action == 1:  # LEFT
             vel_cmd = Twist()
-            vel_cmd.linear.x = 1
-            vel_cmd.angular.z = 2
-            vel_cmd.linear.y = 0
+            vel_cmd.linear.x = 0
+            vel_cmd.linear.z = 1
+            vel_cmd.linear.y = 2
             vel_cmd.angular.x = 0
             vel_cmd.angular.y = 0
-            vel_cmd.angular.z = 2
-            self.cmd_pub.publish(vel_cmd)
+            vel_cmd.angular.z = 0
+            self.cmd_pub.publish(vel_cmd) # BE91 7340 4422 9076
         elif action == 2:  # RIGHT
             vel_cmd = Twist()
-            vel_cmd.linear.x = 1
-            vel_cmd.angular.z = 1
-            vel_cmd.linear.y = 0
+            vel_cmd.linear.x = 0
+            vel_cmd.linear.z = 1
+            vel_cmd.linear.y = -2
             vel_cmd.angular.x = 0
             vel_cmd.angular.y = 0
-            vel_cmd.angular.z = -2
+            vel_cmd.angular.z = 0
             self.cmd_pub.publish(vel_cmd)
         elif action == 3:  # BACK
             vel_cmd = Twist()
@@ -102,7 +102,7 @@ class GazeboWorldHectorLaserCamera(gazebo_env.GazeboEnv):
         elif action == 4:  # DOWN
             vel_cmd = Twist()
             vel_cmd.linear.x = 0
-            vel_cmd.angular.z = -2
+            vel_cmd.linear.z = -2
             vel_cmd.linear.y = 0
             vel_cmd.angular.x = 0
             vel_cmd.angular.y = 0
@@ -111,35 +111,25 @@ class GazeboWorldHectorLaserCamera(gazebo_env.GazeboEnv):
         elif action == 5:  # TURN LEFT
             vel_cmd = Twist()
             vel_cmd.linear.x = 0
-            vel_cmd.linear.z = 1
-            vel_cmd.linear.y = -2
+            vel_cmd.linear.z = 0
+            vel_cmd.linear.y = 0
             vel_cmd.angular.x = 0
             vel_cmd.angular.y = 0
-            vel_cmd.angular.z = 0
+            vel_cmd.angular.z = 2
             self.cmd_pub.publish(vel_cmd)
         elif action == 6:  # TURN RIGHT
             vel_cmd = Twist()
             vel_cmd.linear.x = 0
-            vel_cmd.linear.z = 1
-            vel_cmd.linear.y = 2
+            vel_cmd.linear.z = 0
+            vel_cmd.linear.y = 0
             vel_cmd.angular.x = 0
             vel_cmd.angular.y = 0
-            vel_cmd.angular.z = 0
+            vel_cmd.angular.z = -2
             self.cmd_pub.publish(vel_cmd)
         elif action == 7:  # UP
             vel_cmd = Twist()
             vel_cmd.linear.x = 0
             vel_cmd.linear.z = 2
-            vel_cmd.linear.y = 0
-            vel_cmd.angular.x = 0
-            vel_cmd.angular.y = 0
-            vel_cmd.angular.z = 0
-            self.cmd_pub.publish(vel_cmd)
-        elif action == 8:  # STAND STILL
-            print("gets here")
-            vel_cmd = Twist()
-            vel_cmd.linear.x = 0
-            vel_cmd.linear.z = 0
             vel_cmd.linear.y = 0
             vel_cmd.angular.x = 0
             vel_cmd.angular.y = 0
@@ -220,11 +210,16 @@ class GazeboWorldHectorLaserCamera(gazebo_env.GazeboEnv):
 
         rospy.Subscriber("/pose", PoseStamped, get_location)
 
-        distance = math.sqrt((20 - point.position.x)**2 + (20 - point.position.y)**2)
-        reward = 10 / distance
+        # distance = math.sqrt((20 - point.position.x)**2 + (20 - point.position.y)**2)
+        distance = math.sqrt(math.pow((50 - point.position.y), 2))
+        reward = 50 - distance
         reward = reward * 10
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
+        if point.position.x > 10 or point.position.x < -10 or point.position.y < -5 or point.position.z > 20:
+            reward = -1000
+            print("not on path or to high!")
+
         # cv_image = cv_image[(self.img_rows/20):self.img_rows-(self.img_rows/20),(self.img_cols/10):self.img_cols] #crop image
         # cv_image = skimage.exposure.rescale_intensity(cv_image,out_range=(0,255))
         state = cv_image.reshape(1, 1, cv_image.shape[0], cv_image.shape[1])
@@ -302,5 +297,3 @@ class GazeboWorldHectorLaserCamera(gazebo_env.GazeboEnv):
 
 def get_location(data):
     point.position.x, point.position.y, point.position.z = data.pose.position.x, data.pose.position.y,data.pose.position.z
-    if point.position.z > 10:
-        print("To high!")
