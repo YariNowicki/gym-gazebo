@@ -13,7 +13,7 @@ class GazeboEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, launchfile):
-        port = os.environ["ROS_PORT_SIM"]
+        port = '11311' # os.environ["ROS_PORT_SIM"]
         # start roscore
         subprocess.Popen(["roscore", "-p", port])
         time.sleep(1)

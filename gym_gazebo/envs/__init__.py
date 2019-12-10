@@ -1,1 +1,1 @@
-from gym_gazebo.envs.hector_env import GazeboEnv
+from gym_gazebo.envs.gazebo_env import GazeboEnv
