@@ -224,19 +224,19 @@ if __name__ == '__main__':
 
     img_rows, img_cols, img_channels = env.img_rows, env.img_cols, env.img_channels
     epochs = 10000
-    steps = 15
+    steps = 10
 
     if not continue_execution:
         minibatch_size = 32
         learningRate = 1e-3  # 1e6
         discountFactor = 0.95
-        network_outputs = 8
+        network_outputs = 18
         memorySize = 100000
-        learnStart = 500  # timesteps to observe before training
+        learnStart = 10000  # timesteps to observe before training
         EXPLORE = memorySize  # frames over which to anneal epsilon
         INITIAL_EPSILON = 1  # starting value of epsilon
         FINAL_EPSILON = 0.01  # final value of epsilon
-        explorationRate = 9
+        explorationRate = 1
         current_epoch = 0
         stepCounter = 0
         loadsim_seconds = 0
@@ -327,11 +327,13 @@ if __name__ == '__main__':
                         round(cumulated_reward, 2)) + "  Eps=" + str(
                         round(explorationRate, 2)) + "  Time: %d:%02d:%02d" % (h, m, s))
                     # SAVE SIMULATION DATA
-                    if (epoch) % 100 == 0:
+
+                    if (epoch) % 1000 == 0:
                         # save model weights and monitoring data every 100 epochs.
                         deepQ.saveModel('/tmp/turtle_c2c_dqn_ep' + str(epoch) + '.h5')
                         # env.monitor.flush()
-                        copy_tree(outdir, '/tmp/turtle_c2c_dqn_ep' + str(epoch))
+                        '''
+                        # copy_tree(outdir, '/tmp/turtle_c2c_dqn_ep' + str(epoch))
                         # save simulation parameters.
                         parameter_keys = ['explorationRate', 'minibatch_size', 'learnStart', 'learningRate',
                                           'discountFactor', 'memorySize', 'network_outputs', 'current_epoch',
@@ -343,6 +345,7 @@ if __name__ == '__main__':
                         parameter_dictionary = dict(zip(parameter_keys, parameter_values))
                         with open('/tmp/turtle_c2c_dqn_ep' + str(epoch) + '.json', 'w') as outfile:
                             json.dump(parameter_dictionary, outfile)
+                            '''
                 break
 
             stepCounter += 1

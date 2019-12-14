@@ -56,13 +56,39 @@ class GazeboWorldHectorLaserCamera(gazebo_env.GazeboEnv):
         return [seed]
 
     def _step(self, action):
+        moveBindings = {
+            0: (1, 0, 0, 0),
+            1: (1, 0, 0, -1),
+            2: (0, 0, 0, 1),
+            3: (0, 0, 0, -1),
+            4: (1, 0, 0, 1),
+            5: (-1, 0, 0, 0),
+            6: (-1, 0, 0, 1),
+            7: (-1, 0, 0, -1),
+            8: (1, -1, 0, 0),
+            9: (1, 0, 0, 0),
+            10: (0, 1, 0, 0),
+            11: (0, -1, 0, 0),
+            12: (1, 1, 0, 0),
+            13: (-1, 0, 0, 0),
+            14: (-1, -1, 0, 0),
+            15: (-1, 1, 0, 0),
+            16: (0, 0, 1, 0),
+            17: (0, 0, -1, 0),
+        }
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             self.unpause()
         except (rospy.ServiceException) as e:
             print ("/gazebo/unpause_physics service call failed")
+        twist = Twist()
+        twist.linear.x = moveBindings[action][0]
+        twist.linear.y = moveBindings[action][1]
+        twist.linear.z = moveBindings[action][2]
+        twist.angular.z = moveBindings[action][3]
+        self.cmd_pub.publish(twist)
 
-        # 3 actions
+        '''
         if action == 0:  # FORWARD AND UP
             vel_cmd = Twist()
             vel_cmd.linear.x = 2
@@ -135,7 +161,7 @@ class GazeboWorldHectorLaserCamera(gazebo_env.GazeboEnv):
             vel_cmd.angular.y = 0
             vel_cmd.angular.z = 0
             self.cmd_pub.publish(vel_cmd)
-
+        '''
         data = None
         while data is None:
             try:
@@ -212,10 +238,16 @@ class GazeboWorldHectorLaserCamera(gazebo_env.GazeboEnv):
 
         # distance = math.sqrt((20 - point.position.x)**2 + (20 - point.position.y)**2)
         distance = math.sqrt(math.pow((50 - point.position.y), 2))
+
         reward = 50 - distance
         reward = reward * 10
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         cv_image = cv2.resize(cv_image, (self.img_rows, self.img_cols))
+        '''
+        cv2.imshow("Image window", cv_image)
+        cv2.waitKey(3)
+        '''
+
         if point.position.x > 10 or point.position.x < -10 or point.position.y < -5 or point.position.z > 20:
             reward = -1000
             print("not on path or to high!")
